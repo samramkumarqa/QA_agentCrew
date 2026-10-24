@@ -4,7 +4,7 @@ A team of AI agents built with **CrewAI** turns a business requirements document
 traceable test pack**. Unlike a single prompt, the agents check each other's work: a QA Reviewer
 inspects the Test Designer's suite against the requirements, and the Designer fixes what it finds.
 
-**Live demo:** [appqaagentcrew.streamlit.app](https://appqaagentcrew.streamlit.app) · Built with CrewAI · Groq · Streamlit
+**Live demo:** [apptestagentcrew.streamlit.app](https://apptestagentcrew.streamlit.app) · Built with CrewAI · Groq · Streamlit
 
 > Part 5 of a QA AI toolkit:
 > [AI Test Case Generator](https://github.com/samramkumarqa/GenerativeAI) ·
