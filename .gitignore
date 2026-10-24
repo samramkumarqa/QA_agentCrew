@@ -1,8 +1,10 @@
-# Secrets
 .env
 .streamlit/secrets.toml
-
-# Python
+.venv/
 venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+.DS_Store
+*_test_pack.xlsx
+QA_Report_*.xlsx

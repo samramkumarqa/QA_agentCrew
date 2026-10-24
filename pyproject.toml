@@ -1,0 +1,9 @@
+[project]
+name = "qa-agent-crew"
+version = "2.0.0"
+description = "CrewAI team that turns a BRD into reviewed, traceable test cases with BA questions and an automation plan"
+requires-python = ">=3.10,<3.14"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::PendingDeprecationWarning"]

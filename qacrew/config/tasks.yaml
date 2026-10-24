@@ -1,0 +1,83 @@
+analyze:
+  description: >
+    Read this business requirements document for "{project}" and extract its testable requirements.
+
+    DOCUMENT START
+    {brd}
+    DOCUMENT END
+
+    Rules:
+    - Number requirements REQ-01, REQ-02, ... in document order. At most {max_requirements}.
+      Merge tiny related rules into one requirement rather than exceeding the limit.
+    - Acceptance criteria come from the document's own words: values, limits, messages, roles.
+    - priority: High for money, security, data loss or legal rules; Medium for core flows; Low otherwise.
+    - questions: every place where the document is ambiguous, contradictory or silent on something
+      a tester needs (limits, error messages, roles, edge cases). Don't guess the answer.
+  expected_output: >
+    Only a JSON object, no other text:
+    {"requirements": [{"id": "REQ-01", "title": "...", "description": "...",
+    "acceptance_criteria": ["...", "..."], "priority": "High"}],
+    "questions": [{"requirement_id": "REQ-01", "question": "...", "why_it_matters": "..."}]}
+
+design:
+  description: >
+    Write test cases for the requirements produced by the Requirements Analyst.
+
+    Rules:
+    - Cover EVERY requirement id at least once. For each requirement write a positive case and,
+      where the requirement has a rule that can be broken or a limit, negative and boundary cases.
+      At most {max_cases_per_requirement} cases per requirement.
+    - id: TC-001, TC-002, ... ; requirement_ids: only ids from the analyst's list.
+    - steps: short imperative actions a tester can follow, one action per step.
+    - test_data: the concrete values to use (e.g. "username=standard_user").
+    - expected_result: one observable outcome with the exact message or value when the document gives it.
+    - type is Positive, Negative or Boundary; priority follows the requirement's priority.
+  expected_output: >
+    Only a JSON object, no other text:
+    {"test_cases": [{"id": "TC-001", "requirement_ids": ["REQ-01"], "title": "...", "type": "Positive",
+    "priority": "High", "preconditions": "...", "steps": ["...", "..."], "test_data": "...",
+    "expected_result": "..."}]}
+
+review:
+  description: >
+    Review the Test Designer's test cases against the analyst's requirements.
+
+    Report each real problem as a finding:
+    - uncovered: a requirement with no test case (target = the REQ id)
+    - missing_negative: a requirement with a breakable rule or limit tested only positively
+    - vague_step: a step a tester couldn't follow exactly (target = the TC id)
+    - weak_expected: an expected result that can't be verified
+    - duplicate: test cases that check the same thing
+    - wrong_mapping: a test case linked to the wrong requirement
+    Give each finding a severity and a concrete suggestion. Don't report style preferences.
+  expected_output: >
+    Only a JSON object, no other text:
+    {"findings": [{"kind": "uncovered", "target": "REQ-03", "severity": "High",
+    "detail": "...", "suggestion": "..."}], "summary": "two sentences on overall quality"}
+
+revise:
+  description: >
+    You are revising YOUR test suite after the QA Reviewer's findings.
+    Fix every finding: add missing test cases, rewrite weak ones, remove duplicates.
+    Return ONLY the changes, not the whole suite:
+    - add: new test cases, numbered after the highest existing TC id
+    - update: existing test cases rewritten in full (same id)
+    - remove: ids of test cases to delete
+    Use only the analyst's requirement ids. Apply the same rules as when you designed the suite.
+  expected_output: >
+    Only a JSON object, no other text:
+    {"add": [ <test case> ], "update": [ <test case> ], "remove": ["TC-007"],
+    "notes": "one sentence per finding saying how it was addressed"}
+    where each test case has the same fields as before (id, requirement_ids, title, type, priority,
+    preconditions, steps, test_data, expected_result).
+
+automate:
+  description: >
+    Recommend which test cases from the final, revised suite to automate.
+    For each test case worth discussing give a priority (High = automate first), the layer
+    (UI, API, Unit, or Manual only) and a one-sentence reason. Prefer API or Unit when the rule can
+    be checked below the UI. Include the cases you'd keep manual, marked "Manual only".
+  expected_output: >
+    Only a JSON object, no other text:
+    {"items": [{"test_case_id": "TC-001", "priority": "High", "layer": "UI", "reason": "..."}],
+    "summary": "two sentences on the automation approach"}
