@@ -9,12 +9,27 @@ MODELS = {
 }
 
 
+# Fields the OpenAI-style chat API accepts on a message. CrewAI 1.x adds its own markers (such as
+# "cache_breakpoint" for prompt caching), which Groq rejects with "property ... is unsupported".
+MESSAGE_FIELDS = {"role", "content", "name", "tool_calls", "tool_call_id"}
+
+
+def clean_messages(messages):
+    return [{k: v for k, v in m.items() if k in MESSAGE_FIELDS} if isinstance(m, dict) else m for m in messages]
+
+
 def make_llm(api_key: str, model: str = "openai/gpt-oss-120b"):
     from crewai import LLM
 
+    class GroqLLM(LLM):
+        """CrewAI's LiteLLM-backed LLM, sending Groq only the message fields it accepts."""
+
+        def _format_messages_for_provider(self, messages):
+            return super()._format_messages_for_provider(clean_messages(messages))
+
     extra = {"reasoning_effort": "low"} if model.startswith("openai/gpt-oss") else {}
-    return LLM(model=f"groq/{model}", api_key=api_key, temperature=0.2, max_tokens=8000, timeout=180,
-               num_retries=3, **extra)
+    return GroqLLM(model=f"groq/{model}", api_key=api_key, temperature=0.2, max_tokens=8000, timeout=180,
+                   num_retries=3, **extra)
 
 
 def friendly_error(e: Exception) -> str:
